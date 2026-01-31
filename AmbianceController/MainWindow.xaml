@@ -5,16 +5,20 @@
         Height="350" Width="500"
         WindowStyle="None" 
         AllowsTransparency="True" 
-        Background="#01000000">
+        Background="Transparent">
 
-    <Border CornerRadius="15" Background="Transparent" BorderBrush="#22FFFFFF" BorderThickness="1.5">
+    <Border CornerRadius="15" 
+            Background="#11FFFFFF" 
+            BorderBrush="#44FFFFFF" 
+            BorderThickness="1.5">
+
         <Grid>
             <Button Content="—" 
                     HorizontalAlignment="Right" 
                     VerticalAlignment="Top" 
                     Margin="0,10,45,0" 
                     Width="30" Height="30"
-                    Background="#11FFFFFF" 
+                    Background="#00FFFFFF" 
                     Foreground="White" 
                     FontSize="16"
                     FontWeight="Bold"

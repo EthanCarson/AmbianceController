@@ -1,56 +1,51 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Interop;
-using System.Windows.Media;
 
 namespace AmbianceController
 {
     public partial class MainWindow : Window
     {
-        public MainWindow()
-        {
-            InitializeComponent();
-
-            // Software rendering can stabilize transparency on certain GPUs
-            RenderOptions.ProcessRenderMode = RenderMode.SoftwareOnly;
-
-            this.Loaded += (s, e) => EnableBlur();
-            this.MouseLeftButtonDown += Window_MouseLeftButtonDown;
-        }
-
-        private void Window_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == System.Windows.Input.MouseButton.Left)
-                this.DragMove();
-        }
-
-        private void CloseButton_Click(object sender, RoutedEventArgs e)
-        {
-            this.Close();
-        }
-
-        private void MinimizeButton_Click(object sender, RoutedEventArgs e)
-        {
-            this.WindowState = WindowState.Minimized;
-        }
-
+        // DWM API Constants
         [DllImport("dwmapi.dll")]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int value, int attrSize);
 
-        private void EnableBlur()
+        public MainWindow()
+        {
+            InitializeComponent();
+            this.MouseLeftButtonDown += Window_MouseLeftButtonDown;
+
+            // Apply the gloss once the window handle is created
+            this.Loaded += (s, e) => EnableAcrylic();
+        }
+
+        private void EnableAcrylic()
         {
             var hwnd = new WindowInteropHelper(this).Handle;
 
-            // Attribute 38: Sets the Backdrop type
-            // Value 3: Acrylic (The blur from your video)
+            // 1. Apply the Acrylic Backdrop
             int glassValue = 3;
             DwmSetWindowAttribute(hwnd, 38, ref glassValue, sizeof(int));
 
-            // Attribute 20: Forces Dark Mode on the window elements
-            // Value 1: True
+            // 2. NEW: Tell Windows to round the actual Window corners to match your UI
+            // Value 2 = Forced Rounded Corners
+            int cornerPreference = 2;
+            DwmSetWindowAttribute(hwnd, 33, ref cornerPreference, sizeof(int));
+
+            // 3. Force Dark Mode
             int darkMode = 1;
             DwmSetWindowAttribute(hwnd, 20, ref darkMode, sizeof(int));
         }
+
+        private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+                this.DragMove();
+        }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e) => this.Close();
+        private void MinimizeButton_Click(object sender, RoutedEventArgs e) => this.WindowState = WindowState.Minimized;
     }
 }
